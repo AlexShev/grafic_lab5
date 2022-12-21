@@ -24,11 +24,11 @@ public class BinaryImage : BaseImage<Bit>
             {
                 if (image.GetPixel(x, y) >= binarizationBarrier)
                 {
-                    SetPixel(x, y, Bit.one);
+                    result.SetPixel(x, y, Bit.one);
                 }
                 else
                 {
-                    SetPixel(x, y, Bit.zero);
+                    result.SetPixel(x, y, Bit.zero);
                 }
             }
         }
