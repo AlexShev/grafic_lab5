@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace grafic_lab5.Images;
 
-internal class ConnectedAreasMap : BaseImage<int>
+public class ComponentMap : BaseImage<int>
 {
     public int MaxComponentCount { get; private set; }
 
-    private ConnectedAreasMap(BinaryImage image) : base(image.Width, image.Height)
+    private ComponentMap(BinaryImage image) : base(image.Width, image.Height)
     {
         for (int y = 0; y < image.Height; y++)
         {
@@ -38,10 +38,9 @@ internal class ConnectedAreasMap : BaseImage<int>
         }
     }
 
-
-    public static ConnectedAreasMap Create(BinaryImage image)
+    public static ComponentMap Create(BinaryImage image)
     {
-        ConnectedAreasMap result = new ConnectedAreasMap(image);
+        ComponentMap result = new ComponentMap(image);
         int componentCounter = 0;
 
         for (int y = 0; y < result.Height; y++)
@@ -101,4 +100,37 @@ internal class ConnectedAreasMap : BaseImage<int>
 
         return result;
     }
+
+    public BinaryImage ClipComponent(Rectangle region, int componentIndex)
+    {
+        int maxY = region.Bottom;
+        int maxX = region.Right;
+
+        int minY = region.Y;
+        int minX = region.X;
+
+        BinaryImage result = new BinaryImage(region.Width, region.Height);
+
+        int y = minY;
+
+        while (y < maxY)
+        {
+            int x = minX;
+
+            while (x < maxX)
+            {
+                if (GetPixel(x, y).Equals(componentIndex))
+                {
+                    result.SetPixel(x - minX, y - minY, Bit.one);
+                }
+
+                ++x;
+            }
+
+            ++y;
+        }
+
+        return result;
+    }
+
 }

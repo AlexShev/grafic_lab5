@@ -17,19 +17,19 @@ public class MataData
 /// <summary>
 /// Класс для хранения данных о образе
 /// </summary>
-public class ObjectData
+public class ComponentData
 {
     // Данные об образе
     public MataData Data;
     // перцептивный хэш
     public ulong PerceptualHash;
 
-    public ObjectData(MataData data)
+    public ComponentData(MataData data)
     {
         Data = data;
     }
 
-    public ObjectData()
+    public ComponentData()
     {
         Data = new MataData();
     }

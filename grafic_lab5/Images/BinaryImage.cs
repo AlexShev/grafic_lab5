@@ -12,6 +12,10 @@ public class BinaryImage : BaseImage<Bit>
     {
     }
 
+    private BinaryImage(Bit[,] pixels) : base(pixels)
+    {
+    }
+
     public static BinaryImage Create(GrayImage image, double binarizationThreshold)
     {
         BinaryImage result = new BinaryImage(image.Width, image.Height);
@@ -34,5 +38,10 @@ public class BinaryImage : BaseImage<Bit>
         }
 
         return result;
+    }
+
+    public BinaryImage Scale(int newWidth, int newHeight)
+    {
+        return new BinaryImage(ScaleMatrix(newWidth, newHeight));
     }
 }
