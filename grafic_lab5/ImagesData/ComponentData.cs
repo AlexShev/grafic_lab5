@@ -10,7 +10,7 @@ namespace grafic_lab5.ImagesData;
 /// <summary>
 /// Метаданные об объекте
 /// </summary>
-public class MataData
+public class MetaData
 {
     public string Name = string.Empty;
 }
@@ -42,12 +42,12 @@ public class PerceptualHash
         return perceptualHash;
     }
 
-    public static byte HammingDistances(uint first, uint second)
+    public static byte HammingDistances(ulong first, ulong second)
     {
         byte distances = 0;
 
         // Операторы ^ устанавливают в 1 только те биты, которые отличаются
-        for (uint val = first ^ second; val > 0; ++distances)
+        for (ulong val = first ^ second; val > 0; ++distances)
         {
             // Затем мы считаем бит, установленный в 1, используя Peter Wegnerспособ
             val = val & val - 1; // Установить равным нулю значение младшего порядка val 1
@@ -65,11 +65,11 @@ public class PerceptualHash
 public class ComponentData
 {
     // Данные об образе
-    public MataData Data;
+    public MetaData Data;
     // перцептивный хэш
     public ulong Hash;
 
-    public ComponentData(MataData data, BinaryImage binaryImage)
+    public ComponentData(MetaData data, BinaryImage binaryImage)
     {
         Data = data;
         Hash = PerceptualHash.CalcPerceptualHash(binaryImage);
@@ -77,7 +77,7 @@ public class ComponentData
 
     public ComponentData()
     {
-        Data = new MataData();
+        Data = new MetaData();
         Hash = 0;
     }
 }
