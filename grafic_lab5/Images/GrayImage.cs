@@ -6,12 +6,25 @@ using System.Threading.Tasks;
 
 namespace grafic_lab5.Images;
 
+/// <summary>
+/// Серое изображение (полутоновое)
+/// </summary>
 public class GrayImage : BaseImage<byte>
 {
+    /// <summary>
+    /// Конструктор
+    /// </summary>
+    /// <param name="width">ширина</param>
+    /// <param name="height">высота</param>
     public GrayImage(int width, int height) : base(width, height)
     {
     }
 
+    /// <summary>
+    /// Создать полутоновое изображение из цветного
+    /// </summary>
+    /// <param name="bitmap">Цветное изображение</param>
+    /// <returns>Полутоновое изображение</returns>
     public static GrayImage Create(Bitmap bitmap)
     {
         GrayImage result = new GrayImage(bitmap.Width, bitmap.Height);
@@ -20,6 +33,7 @@ public class GrayImage : BaseImage<byte>
         {
             for (int x = 0; x < bitmap.Width; ++x)
             {
+                // преобразование соответствующих пикселей в серый цвет
                 result.SetPixel(x, y, ToGray(bitmap.GetPixel(x, y)));
             }
         }
@@ -27,6 +41,7 @@ public class GrayImage : BaseImage<byte>
         return result;
     }
 
+    // Одна из популярных формул преобразования
     private static byte ToGray(Color color)
     {
         return (byte)(0.299 * color.R + 0.587 * color.G + 0.114 * color.B);

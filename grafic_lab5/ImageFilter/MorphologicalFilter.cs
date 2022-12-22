@@ -5,11 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace grafic_lab5.ImageWorkers;
+namespace grafic_lab5.ImageFilter;
 
+/// <summary>
+/// Морфологический фильтр
+/// </summary>
 public class MorphologicalFilter
 {
-    public BinaryImage ErosionFilter(BinaryImage image)
+    /// <summary>
+    /// Метод эрозии
+    /// </summary>
+    /// <param name="image"></param>
+    /// <returns></returns>
+    public static BinaryImage ErosionFilter(BinaryImage image)
     {
         BinaryImage res = new BinaryImage(image.Width, image.Height);
 
@@ -38,7 +46,12 @@ public class MorphologicalFilter
         return res;
     }
 
-    public BinaryImage DilatationFilter(BinaryImage image)
+    /// <summary>
+    /// Метод Нарасчивания (деалотации)
+    /// </summary>
+    /// <param name="image"></param>
+    /// <returns></returns>
+    public static BinaryImage DilatationFilter(BinaryImage image)
     {
         BinaryImage res = new BinaryImage(image.Width, image.Height);
 
@@ -67,4 +80,14 @@ public class MorphologicalFilter
         return res;
     }
 
+    /// <summary>
+    /// Алгоритм выполнения размыкания
+    /// Последовательное выполнение эрозии и наращивания
+    /// </summary>
+    /// <param name="image"></param>
+    /// <returns></returns>
+    public static BinaryImage OpeningFilter(BinaryImage image)
+    {
+        return DilatationFilter(ErosionFilter(image));
+    }
 }

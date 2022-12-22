@@ -1,15 +1,27 @@
-﻿using System;
+﻿using grafic_lab5.Images;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace grafic_lab5.Images;
+namespace grafic_lab5.ImagesData;
 
+/// <summary>
+/// Карта связных областей
+/// хранит связные области на бинарном изображении
+/// </summary>
 public class ComponentMap : BaseImage<int>
 {
+    /// <summary>
+    /// Количество компонентов связности
+    /// </summary>
     public int MaxComponentCount { get; private set; }
 
+    /// <summary>
+    /// Конструктор инициализирует индексом 1 все пиксили, где Bit.one
+    /// </summary>
+    /// <param name="image">Исходное изображение</param>
     private ComponentMap(BinaryImage image) : base(image.Width, image.Height)
     {
         for (int y = 0; y < image.Height; y++)
@@ -24,6 +36,11 @@ public class ComponentMap : BaseImage<int>
         }
     }
 
+    /// <summary>
+    /// Замена всех старых индексов новым
+    /// </summary>
+    /// <param name="oldIndex"></param>
+    /// <param name="newIndex"></param>
     public void ReplaseIndex(int oldIndex, int newIndex)
     {
         for (int y = 0; y < Height; y++)
@@ -38,6 +55,12 @@ public class ComponentMap : BaseImage<int>
         }
     }
 
+    /// <summary>
+    /// Создание карты компонентов связнасти по бинарному изображению
+    /// Алгоритм ABC
+    /// </summary>
+    /// <param name="image"></param>
+    /// <returns>карту компонентов связнасти</returns>
     public static ComponentMap Create(BinaryImage image)
     {
         ComponentMap result = new ComponentMap(image);
@@ -61,7 +84,7 @@ public class ComponentMap : BaseImage<int>
                 }
 
                 int temp_i = y - 1;
-                
+
                 if (temp_i > 0)
                 {
                     c = result.GetPixel(x, temp_i);
@@ -101,6 +124,12 @@ public class ComponentMap : BaseImage<int>
         return result;
     }
 
+    /// <summary>
+    /// Выделение прямоугольником соответствующей компоненты связности
+    /// </summary>
+    /// <param name="region"></param>
+    /// <param name="componentIndex"></param>
+    /// <returns></returns>
     public BinaryImage ClipComponent(Rectangle region, int componentIndex)
     {
         int maxY = region.Bottom;
