@@ -13,6 +13,11 @@ namespace grafic_lab5.ImagesData;
 public class MetaData
 {
     public string Name = string.Empty;
+
+    public MetaData(string name)
+    {
+        Name = name;
+    }
 }
 
 /// <summary>

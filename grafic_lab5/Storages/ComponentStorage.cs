@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using grafic_lab5.ImagesData;
 
 namespace grafic_lab5.Storages;
 
@@ -11,5 +10,15 @@ namespace grafic_lab5.Storages;
 /// </summary>
 public class ComponentStorage
 {
+    List<ComponentData> components = new List<ComponentData>();
 
+    public void AddComponent(ComponentData component)
+    {
+        components.Add(component);
+    }
+
+    public ComponentData? FindCloserComponent(ulong hash)
+    {
+        return components.MinBy((component) => PerceptualHash.HammingDistances(component.Hash, hash));
+    }
 }
