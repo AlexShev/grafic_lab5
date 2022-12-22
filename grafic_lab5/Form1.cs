@@ -32,7 +32,9 @@ namespace grafic_lab5
 
             // кроме выхода за пределы желательно оценить правильность перевода
             // так же желательно оценить правильность перевода при белом фоне (возможны приколы)
-            BinaryImage binaryImage = BinaryImage.Create(image, 0.6, true);
+            double binarizationBarrier = BinaryImage.CuclBinarizationBarrier(image);
+
+            BinaryImage binaryImage = BinaryImage.Create(image, binarizationBarrier, true);
 
             // можно просто проследить выход за пределы и неперепутаны ли столбцы и строки
             // но желательно проследить корректность

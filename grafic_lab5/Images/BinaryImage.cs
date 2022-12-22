@@ -16,11 +16,9 @@ public class BinaryImage : BaseImage<Bit>
     {
     }
 
-    public static BinaryImage Create(GrayImage image, double binarizationThreshold, bool isBlackBackground)
+    public static BinaryImage Create(GrayImage image, double binarizationBarrier, bool isBlackBackground)
     {
         BinaryImage result = new BinaryImage(image.Width, image.Height);
-
-        double binarizationBarrier = byte.MaxValue * binarizationThreshold;
 
         Func<double, double, bool> comporator = isBlackBackground ? ((double a, double b) => a >= b) : ((double a, double b) => a < b);
 
@@ -40,6 +38,21 @@ public class BinaryImage : BaseImage<Bit>
         }
 
         return result;
+    }
+
+    public static double CuclBinarizationBarrier(GrayImage image)
+    {
+        double sum = 0;
+
+        for (int y = 0; y < image.Height; ++y)
+        {
+            for (int x = 0; x < image.Width; ++x)
+            {
+                sum += image.GetPixel(x, y);
+            }
+        }
+
+        return sum / (image.Height * image.Width);
     }
 
     public BinaryImage Scale(int newWidth, int newHeight)
