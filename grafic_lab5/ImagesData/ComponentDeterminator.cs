@@ -48,7 +48,7 @@ public class ComponentDeterminator
 
                         if (y < minY)
                         {
-                            maxY = y;
+                            minY = y;
                         }
 
                         if (x > maxX)
@@ -56,9 +56,9 @@ public class ComponentDeterminator
                             maxX = x;
                         }
 
-                        if (x < minY)
+                        if (x < minX)
                         {
-                            minY = y;
+                            minX = x;
                         }
 
                         ++counter;

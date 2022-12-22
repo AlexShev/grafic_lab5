@@ -1,9 +1,4 @@
 ﻿using grafic_lab5.Images;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace grafic_lab5.ImagesData;
 
@@ -12,11 +7,16 @@ namespace grafic_lab5.ImagesData;
 /// </summary>
 public class MetaData
 {
-    public string Name = string.Empty;
+    public string Name;
 
     public MetaData(string name)
     {
         Name = name;
+    }
+
+    public MetaData()
+    {
+        Name = string.Empty;
     }
 }
 
@@ -29,20 +29,29 @@ public class PerceptualHash
     {
         uint perceptualHash = 0;
 
-        if (binaryImage.Height != 8 || binaryImage.Width != 8)
-        {
-            binaryImage = binaryImage.Scale(8, 8);
-        }
+        // масштабирующее значение по осям координат
+        double scale = Math.Min(8.0 / binaryImage.Height, 8.0 / binaryImage.Width);
 
-        for (int i = 0; i < 8; i++)
+        int height = (int)Math.Round(binaryImage.Height * scale);
+        int width = (int)Math.Round(binaryImage.Width * scale);
+
+        for (int i = 0; i < height; i++)
         {
-            for (int j = 0; j < 8; j++)
+            for (int j = 0; j < width; j++)
             {
-                perceptualHash |= (byte)binaryImage.GetPixel(j, i);
+                // значение в исходном изображении по масштабируемым значениям нового изображения
+                int x = Math.Min((int)Math.Round(j / scale), binaryImage.Width - 1);
+                int y = Math.Min((int)Math.Round(i / scale), binaryImage.Height - 1);
+                
+                perceptualHash |= (byte)binaryImage.GetPixel(x, y);
+
+                perceptualHash <<= 1;
             }
 
-            perceptualHash <<= 1;
+            perceptualHash <<= 8 - width;
         }
+
+        perceptualHash <<= (8 - height) * 8;
 
         return perceptualHash;
     }

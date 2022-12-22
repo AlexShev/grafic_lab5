@@ -59,29 +59,4 @@ public abstract class BaseImage <T> where T : struct
     {
         return _pixels[y, x];
     }
-
-    /// <summary>
-    /// Масштабировать матрицу пикселей
-    /// </summary>
-    /// <param name="newWidth">новая ширина</param>
-    /// <param name="newHeight">новая высота</param>
-    /// <returns></returns>
-    protected T[,] ScaleMatrix(int newWidth, int newHeight)
-    {
-        var res = new T[newWidth, newHeight];
-        // масштабирующее значение по осям координат
-        double dX = Width / newWidth;
-        double dY = Height / newHeight;
-
-        for (int y = 0; y < newHeight; y++)
-        {
-            for (int x = 0; x < newWidth; x++)
-            {
-                // значение в исходном изображении по масштабируемым значениям нового изображения
-                res[y, x] = _pixels[(int)Math.Round(y * dY), (int)Math.Round(x * dX)];
-            }
-        }            
-  
-        return res;
-    }
 }

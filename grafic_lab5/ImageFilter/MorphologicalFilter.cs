@@ -29,14 +29,14 @@ public class MorphologicalFilter
             for (int x = 1; x < width; x++)
             {
                 if (image.GetPixel(x - 1, y - 1) == Bit.one
-                    || image.GetPixel(x - 1, y) == Bit.one
-                    || image.GetPixel(x - 1, y + 1) == Bit.one
-                    || image.GetPixel(x, y - 1) == Bit.one
-                    || image.GetPixel(x, y) == Bit.one
-                    || image.GetPixel(x, y + 1) == Bit.one
-                    || image.GetPixel(x + 1, y - 1) == Bit.one
-                    || image.GetPixel(x + 1, y) == Bit.one
-                    || image.GetPixel(x + 1, y + 1) == Bit.one)
+                    && image.GetPixel(x - 1, y) == Bit.one
+                    && image.GetPixel(x - 1, y + 1) == Bit.one
+                    && image.GetPixel(x, y - 1) == Bit.one
+                    && image.GetPixel(x, y) == Bit.one
+                    && image.GetPixel(x, y + 1) == Bit.one
+                    && image.GetPixel(x + 1, y - 1) == Bit.one
+                    && image.GetPixel(x + 1, y) == Bit.one
+                    && image.GetPixel(x + 1, y + 1) == Bit.one)
                 {
                     res.SetPixel(x, y, Bit.one);
                 }

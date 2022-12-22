@@ -24,7 +24,7 @@ public struct AnalyzerResult
     }
 }
 
-public class ComponentAnalyzer
+public class ImageAnalyzer
 {
     /// <summary>
     /// База образов
@@ -56,7 +56,7 @@ public class ComponentAnalyzer
         }
     }
 
-    public ComponentAnalyzer(ComponentStorage storage)
+    public ImageAnalyzer(ComponentStorage storage)
     {
         _storage = storage;
     }

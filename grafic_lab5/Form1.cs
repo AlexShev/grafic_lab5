@@ -1,3 +1,4 @@
+using grafic_lab5.ImageAnalizer;
 using grafic_lab5.ImageFilter;
 using grafic_lab5.Images;
 using grafic_lab5.ImagesData;
@@ -6,9 +7,14 @@ namespace grafic_lab5
 {
     public partial class Form1 : Form
     {
+        private ImageAnalyzer _analyzer;
+
         public Form1()
         {
             InitializeComponent();
+
+            _analyzer = new ImageAnalyzer(new Storages.ComponentStorage());
+            // _analyzer.FillComponentStorage("");
 
             // можно малое изображение 8 на 8
             // жнлательно чёрный фон и пару пятен (можно разных цветов)
@@ -53,7 +59,6 @@ namespace grafic_lab5
 
                 // проверить работу маштабирования и вычисления хэша
                 var hash = PerceptualHash.CalcPerceptualHash(component);
-
                 
                 byte d1 = PerceptualHash.HammingDistances(hash, ulong.MaxValue);
                 byte d2 = PerceptualHash.HammingDistances(hash, 0);

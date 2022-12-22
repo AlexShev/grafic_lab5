@@ -54,9 +54,4 @@ public class BinaryImage : BaseImage<Bit>
 
         return sum / (image.Height * image.Width);
     }
-
-    public BinaryImage Scale(int newWidth, int newHeight)
-    {
-        return new BinaryImage(ScaleMatrix(newWidth, newHeight));
-    }
 }
