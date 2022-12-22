@@ -93,7 +93,7 @@ public class LinearFilter
                 var i = y - _matrixCenterY + p;
                 var j = x - _matrixCenterX + q;
 
-                result += image.GetPixel(j, i) * image.GetPixel(p, q);
+                result += image.GetPixel(j, i) * _matrix[p, q];
             }
         }
 

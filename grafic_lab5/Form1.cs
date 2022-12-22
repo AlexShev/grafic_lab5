@@ -12,7 +12,7 @@ namespace grafic_lab5
 
             // можно малое изображение 8 на 8
             // жнлательно чёрный фон и пару пятен (можно разных цветов)
-            string fillName = "Путь до цветного изображения";
+            string fillName = "C:\\Users\\ALEX\\Desktop\\ComputerGraphics\\code\\grafic_lab5\\grafic_lab5\\Images\\Image1.bmp";
 
             Bitmap bitmap = new Bitmap(fillName);
 
@@ -23,7 +23,7 @@ namespace grafic_lab5
             GrayImage image = GrayImage.Create(bitmap);
 
             // проверить процес чтения (с указанием путя мог проебаться)
-            MatrixParser parser = new MatrixParser("grafic_lab5\\grafic_lab5\\ImageFilter\\filter.txt");
+            MatrixParser parser = new MatrixParser("C:\\Users\\ALEX\\Desktop\\ComputerGraphics\\code\\grafic_lab5\\grafic_lab5\\ImageFilter\\filter.txt");
 
             LinearFilter linearFilter = new LinearFilter(parser.Matrix, parser.Coefficient);
 
