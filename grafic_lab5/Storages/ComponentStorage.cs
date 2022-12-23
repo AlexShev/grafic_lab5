@@ -19,6 +19,21 @@ public class ComponentStorage
 
     public ComponentData? FindCloserComponent(ulong hash)
     {
-        return components.MinBy((component) => PerceptualHash.HammingDistances(component.Hash, hash));
+        int min_i = -1;
+        ulong minDistances = ulong.MaxValue;
+
+        for (int i = 0; i < components.Count; i++)
+        {
+            var currDistances = PerceptualHash.HammingDistances(components[i].Hash, hash);
+
+            if (currDistances < minDistances)
+            {
+                minDistances = currDistances;
+                min_i = i;
+            }
+        }
+
+        return min_i != -1 ? components[min_i] : null;
+        // return components.MinBy((component) => PerceptualHash.HammingDistances(component.Hash, hash));
     }
 }

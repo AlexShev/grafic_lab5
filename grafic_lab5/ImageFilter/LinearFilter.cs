@@ -54,7 +54,7 @@ public class LinearFilter
     /// </summary>
     /// <param name="image">Исходное изображение</param>
     /// <returns>Фильтрованное изображение</returns>
-    public GrayImage Filter(GrayImage image)
+    public GrayImage Filter(GrayImage image, bool isBlackBackground)
     {
         GrayImage res = new GrayImage(image.Width, image.Height);
 
@@ -67,6 +67,33 @@ public class LinearFilter
             for (int x = _matrixCenterX; x < width; x++)
             {
                 res.SetPixel(x, y, Filter(x, y, image));
+            }
+        }
+
+        if (!isBlackBackground)
+        {
+            // надо сделать белую рамку
+
+            // верхние полосы
+            for (int y = 0; y < _matrixCenterY; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    res.SetPixel(x, y, byte.MaxValue);
+
+                    res.SetPixel(x, image.Height - y - 1, byte.MaxValue);
+                }
+            }
+
+            // полосы по бокам
+            for (int y = _matrixCenterY; y < height; y++)
+            {
+                for (int x = 0; x < _matrixCenterX; x++)
+                {
+                    res.SetPixel(x, y, byte.MaxValue);
+
+                    res.SetPixel(image.Width - 1 - x, y, byte.MaxValue);
+                }
             }
         }
 

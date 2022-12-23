@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace grafic_lab5.ImageAnalizer;
 
-public struct AnalyzerResult
+public struct AnalyzerResult : IComparable<AnalyzerResult>
 {
     // Название
     public string Name;
@@ -22,6 +22,18 @@ public struct AnalyzerResult
         Name = name;
         Location = location;
     }
+
+    public int CompareTo(AnalyzerResult other)
+    {
+        int result = Location.X.CompareTo(other.Location.X);
+
+        if (result == 0)
+        {
+            result = Location.Y.CompareTo(other.Location.Y);
+        }
+
+        return result;
+    }
 }
 
 public class ImageAnalyzer
@@ -32,33 +44,41 @@ public class ImageAnalyzer
     private ComponentStorage _storage;
 
     /// <summary>
+    /// Линейный фильтр
+    /// </summary>
+    private LinearFilter? _linearFilter;
+
+    /// <summary>
     /// минимальный процент совпадения (от 0 до 1)
     /// </summary>
-    private double _minimumMatchPercentage;
+    private const double MinimumMatchPercentage = 0.7;
 
-    public double MinimumMatchPercentage 
-    { 
-        get => _minimumMatchPercentage;
-        set
-        {
-            if (value > 1)
-            {
-                _minimumMatchPercentage = 1;
-            }
-            else if (value < 0)
-            {
-                _minimumMatchPercentage = 0;
-            }
-            else
-            {
-                _minimumMatchPercentage = value;
-            }
-        }
+    /// <summary>
+    /// Барьер бинаризации число от 0 до 255
+    /// </summary>
+    private double _binarizationBarrier;
+
+    /// <summary>
+    /// Степень бинаризации - число от 0 до 1
+    /// </summary>
+    public double BinarizationMeasure 
+    {
+        set => _binarizationBarrier = value * byte.MaxValue;
+        get => _binarizationBarrier / byte.MaxValue;
     }
 
-    public ImageAnalyzer(ComponentStorage storage)
+    public bool IsInteractiv { set; get; }
+
+    public ImageAnalyzer(ComponentStorage storage, bool isInteractiv)
     {
         _storage = storage;
+        BinarizationMeasure = 0;
+        IsInteractiv = isInteractiv;
+    }
+
+    public void SetLinearFilter(LinearFilter linearFilter)
+    {
+        _linearFilter = linearFilter;
     }
 
     /// <summary>
@@ -66,9 +86,9 @@ public class ImageAnalyzer
     /// </summary>
     /// <param name="image">изображение для анализа</param>
     /// <returns>список характеристик образов</returns>
-    public List<AnalyzerResult> AnalyzeImage(Bitmap image)
+    public List<AnalyzerResult> AnalyzeImage(Bitmap image, bool isBlackBackground)
     {
-        BinaryImage toAnalysis = PrepareForAnalysis(image);
+        BinaryImage toAnalysis = PrepareForAnalysis(image, isBlackBackground);
 
         // нахождение карты компонент связности
         ComponentMap componentMap = ComponentMap.Create(toAnalysis);
@@ -85,9 +105,15 @@ public class ImageAnalyzer
 
             var response = _storage.FindCloserComponent(hash);
 
-            if (response != null && MinimumMatchPercentage <= 1 - PerceptualHash.HammingDistances(hash, response.Hash) / 64)
+            var matchPercentage = 1 - PerceptualHash.HammingDistances(hash, response.Hash) / 64.0;
+
+            if (response != null && MinimumMatchPercentage <= matchPercentage)
             {
                 result.Add(new AnalyzerResult(response.Data.Name, component.Item1));
+            }
+            else if (matchPercentage <= 0.5)
+            {
+
             }
         }
 
@@ -95,17 +121,38 @@ public class ImageAnalyzer
     }
 
     // подготовка изображения
-    public BinaryImage PrepareForAnalysis(Bitmap bitmap)
+    public BinaryImage PrepareForAnalysis(Bitmap bitmap, bool isBlackBackground)
     {
         GrayImage image = GrayImage.Create(bitmap);
 
-        MatrixParser parser = new MatrixParser("C:\\Users\\ALEX\\Desktop\\ComputerGraphics\\code\\grafic_lab5\\grafic_lab5\\ImageFilter\\filter.txt");
+        if (_linearFilter == null)
+        {
+            MatrixParser parser = new MatrixParser("..\\..\\..\\ImageFilter\\filter.txt");
 
-        image = new LinearFilter(parser.Matrix, parser.Coefficient).Filter(image);
+            _linearFilter = new LinearFilter(parser.Matrix, parser.Coefficient);
+
+        }
+
+        image = _linearFilter.Filter(image, isBlackBackground);
 
         double binarizationBarrier = BinaryImage.CuclBinarizationBarrier(image);
 
-        BinaryImage binaryImage = BinaryImage.Create(image, binarizationBarrier, true);
+        if (IsInteractiv)
+        {
+            if (Math.Abs(binarizationBarrier - _binarizationBarrier) >= 0.1)
+            {
+                var result = MessageBox.Show(
+                    $"Программа считает, что порог бинаризации выгоднее принять за {binarizationBarrier}, чем {_binarizationBarrier}",
+                    "Вы хотите поменять на рекомендуемую велечину?", MessageBoxButtons.YesNo);
+
+                if (result == DialogResult.No)
+                {
+                    binarizationBarrier = _binarizationBarrier;
+                }
+            }
+        }
+
+        BinaryImage binaryImage = BinaryImage.Create(image, binarizationBarrier, isBlackBackground);
 
         binaryImage = MorphologicalFilter.OpeningFilter(binaryImage);
 
@@ -121,15 +168,15 @@ public class ImageAnalyzer
             try
             {
                 string[] nameAndImagePath = ComponentNameAndImage[i].Trim().Split();
-                AddComponent(new MetaData(nameAndImagePath[0]), new Bitmap(nameAndImagePath[1]));
+                AddComponent(new MetaData(nameAndImagePath[0]), new Bitmap(nameAndImagePath[2]), nameAndImagePath[1] == "1");
             }
             catch (Exception) { }
         }
     }
 
-    public void AddComponent(MetaData metaData, Bitmap bitmap)
+    public void AddComponent(MetaData metaData, Bitmap bitmap, bool isBlackBackground)
     {
-        BinaryImage toAdd = PrepareForAnalysis(bitmap);
+        BinaryImage toAdd = PrepareForAnalysis(bitmap, isBlackBackground);
 
         // нахождение карты компонент связности
         ComponentMap componentMap = ComponentMap.Create(toAdd);
