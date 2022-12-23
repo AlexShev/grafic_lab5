@@ -1,9 +1,4 @@
 ﻿using grafic_lab5.Images;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace grafic_lab5.ImageFilter;
 
@@ -72,7 +67,8 @@ public class LinearFilter
 
         if (!isBlackBackground)
         {
-            // надо сделать белую рамку
+            // надо сделать белую рамку, так как если
+            // фон светлый, 0 пиксели воспринимаються, как образ
 
             // верхние полосы
             for (int y = 0; y < _matrixCenterY; y++)

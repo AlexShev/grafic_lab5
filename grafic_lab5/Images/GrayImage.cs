@@ -41,7 +41,10 @@ public class GrayImage : BaseImage<byte>
         return result;
     }
 
-    // Одна из популярных формул преобразования
+    /// <summary>
+    /// Преобразование к серому цвету
+    /// </summary>
+    /// <param name="color">RGB pixel</param>
     private static byte ToGray(Color color)
     {
         return (byte)((color.R + color.G + color.B) / 3.0);

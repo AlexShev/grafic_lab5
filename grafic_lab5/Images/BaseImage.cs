@@ -12,15 +12,25 @@ namespace grafic_lab5.Images;
 /// <typeparam name="T">тип пикселя</typeparam>
 public abstract class BaseImage <T> where T : struct
 {
-    // высота
+    /// <summary>
+    /// высота
+    /// </summary>
     public int Height { get; private set; }
-    // ширина
+    /// <summary>
+    /// ширина
+    /// </summary>
     public int Width { get; private set; }
 
-    // матрица пикселей
+    /// <summary>
+    /// матрица пикселей
+    /// </summary>
     private T[,] _pixels;
 
-    // коструктор - все ячейки нулевые
+    /// <summary>
+    /// коструктор - все ячейки нулевые
+    /// </summary>
+    /// <param name="width">ширина</param>
+    /// <param name="height">высота</param>
     public BaseImage(int width, int height)
     {
         Width = width;
@@ -29,7 +39,10 @@ public abstract class BaseImage <T> where T : struct
         _pixels = new T[height, width];
     }
 
-    // конструктор
+    /// <summary>
+    /// конструктор
+    /// </summary>
+    /// <param name="pixels">матрица пикселей</param>
     public BaseImage(T[,] pixels)
     {
         _pixels = pixels;

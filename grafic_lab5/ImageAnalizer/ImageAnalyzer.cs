@@ -10,21 +10,57 @@ using System.Threading.Tasks;
 
 namespace grafic_lab5.ImageAnalizer;
 
-public struct AnalyzerResult : IComparable<AnalyzerResult>
+/// <summary>
+/// класс - результат анализа
+/// </summary>
+public class AnalyzerResult
 {
-    // Название
-    public string Name;
-    // Положение
+    /// <summary>
+    /// найденные образы
+    /// </summary>
+    public List<ResultFindedItem> ResultFindedItems;
+    /// <summary>
+    /// Ненайденные образы
+    /// </summary>
+    public List<ResultNewComponentItem> ResultNewComponentItems;
+
+    public AnalyzerResult()
+    {
+        ResultFindedItems = new List<ResultFindedItem>();
+        ResultNewComponentItems = new List<ResultNewComponentItem>();
+    }
+}
+
+/// <summary>
+/// Найденный образ
+/// </summary>
+public class ResultFindedItem : IComparable<ResultFindedItem>
+{
+    /// <summary>
+    /// Методанные
+    /// </summary>
+    public MetaData MetaData;
+    
+    /// <summary>
+    /// Положение
+    /// </summary>
     public Rectangle Location;
 
-    public AnalyzerResult(string name, Rectangle location)
+    public ResultFindedItem(MetaData metaData, Rectangle location)
     {
-        Name = name;
+        MetaData = metaData;
         Location = location;
     }
 
-    public int CompareTo(AnalyzerResult other)
+    /// <summary>
+    /// Чтобы можно было сортировать по местуположению
+    /// </summary>
+    /// <param name="other">Другой объект</param>
+    public int CompareTo(ResultFindedItem? other)
     {
+        if (other == null)
+            return 1;
+
         int result = Location.X.CompareTo(other.Location.X);
 
         if (result == 0)
@@ -36,6 +72,36 @@ public struct AnalyzerResult : IComparable<AnalyzerResult>
     }
 }
 
+/// <summary>
+/// Новый образ
+/// </summary>
+public class ResultNewComponentItem
+{
+    /// <summary>
+    /// Положение
+    /// </summary>
+    public Rectangle Location;
+
+    /// <summary>
+    /// Хэш изображения
+    /// </summary>
+    public ulong Hash;
+
+    /// <summary>
+    /// Конструктор
+    /// </summary>
+    /// <param name="location">положение</param>
+    /// <param name="hash">хэш изображения</param>
+    public ResultNewComponentItem(Rectangle location, ulong hash)
+    {
+        Location = location;
+        Hash = hash;
+    }
+}
+
+/// <summary>
+/// Анализатор изображения
+/// </summary>
 public class ImageAnalyzer
 {
     /// <summary>
@@ -51,7 +117,7 @@ public class ImageAnalyzer
     /// <summary>
     /// минимальный процент совпадения (от 0 до 1)
     /// </summary>
-    private const double MinimumMatchPercentage = 0.7;
+    private const double MinimumMatchPercentage = 0.9;
 
     /// <summary>
     /// Барьер бинаризации число от 0 до 255
@@ -67,26 +133,38 @@ public class ImageAnalyzer
         get => _binarizationBarrier / byte.MaxValue;
     }
 
-    public bool IsInteractiv { set; get; }
+    /// <summary>
+    /// Режим работы с пользователем
+    /// </summary>
+    public bool IsInteractive { set; get; }
 
+    /// <summary>
+    /// Конструктор
+    /// </summary>
+    /// <param name="storage">База образов</param>
+    /// <param name="isInteractiv">Режим работы с пользователем</param>
     public ImageAnalyzer(ComponentStorage storage, bool isInteractiv)
     {
         _storage = storage;
         BinarizationMeasure = 0;
-        IsInteractiv = isInteractiv;
+        IsInteractive = isInteractiv;
     }
 
+    /// <summary>
+    /// Установить линейный фильтр
+    /// </summary>
+    /// <param name="linearFilter">Линейный фильтр</param>
     public void SetLinearFilter(LinearFilter linearFilter)
     {
         _linearFilter = linearFilter;
     }
 
     /// <summary>
-    /// Получить список образов, которые известны базе
+    /// Получить список образов, которые известны и не известны базе образов
     /// </summary>
     /// <param name="image">изображение для анализа</param>
     /// <returns>список характеристик образов</returns>
-    public List<AnalyzerResult> AnalyzeImage(Bitmap image, bool isBlackBackground)
+    public AnalyzerResult AnalyzeImage(Bitmap image, bool isBlackBackground)
     {
         BinaryImage toAnalysis = PrepareForAnalysis(image, isBlackBackground);
 
@@ -95,7 +173,7 @@ public class ImageAnalyzer
         // нахождение компонент связности по карте
         var components = ComponentDeterminator.FindComponents(componentMap);
 
-        List<AnalyzerResult> result = new List<AnalyzerResult>();
+        AnalyzerResult result = new AnalyzerResult();
 
         foreach (var component in components)
         {
@@ -109,18 +187,23 @@ public class ImageAnalyzer
 
             if (response != null && MinimumMatchPercentage <= matchPercentage)
             {
-                result.Add(new AnalyzerResult(response.Data.Name, component.Item1));
+                result.ResultFindedItems.Add(new ResultFindedItem(response.Data, component.Item1));
             }
-            else if (matchPercentage <= 0.5)
+            else
             {
-
+                result.ResultNewComponentItems.Add(new ResultNewComponentItem(component.Item1, hash));
             }
         }
 
         return result;
     }
 
-    // подготовка изображения
+    /// <summary>
+    /// Подготовка изображения
+    /// </summary>
+    /// <param name="bitmap">Изображения</param>
+    /// <param name="isBlackBackground">Чёрный ли фон</param>
+    /// <returns></returns>
     public BinaryImage PrepareForAnalysis(Bitmap bitmap, bool isBlackBackground)
     {
         GrayImage image = GrayImage.Create(bitmap);
@@ -137,7 +220,7 @@ public class ImageAnalyzer
 
         double binarizationBarrier = BinaryImage.CuclBinarizationBarrier(image);
 
-        if (IsInteractiv)
+        if (IsInteractive)
         {
             if (Math.Abs(binarizationBarrier - _binarizationBarrier) >= 0.1)
             {
@@ -159,6 +242,10 @@ public class ImageAnalyzer
         return binaryImage;
     }
 
+    /// <summary>
+    /// Заполнить базу образов из файла
+    /// </summary>
+    /// <param name="path">путь к списку образов</param>
     public void FillComponentStorage(string path)
     {
         string[] ComponentNameAndImage = File.ReadAllLines(path);
@@ -174,6 +261,12 @@ public class ImageAnalyzer
         }
     }
 
+    /// <summary>
+    /// Добавление образа - считается, что он один
+    /// </summary>
+    /// <param name="metaData">Методанные</param>
+    /// <param name="bitmap">Изображение с образом</param>
+    /// <param name="isBlackBackground">Чёрный ли фон</param>
     public void AddComponent(MetaData metaData, Bitmap bitmap, bool isBlackBackground)
     {
         BinaryImage toAdd = PrepareForAnalysis(bitmap, isBlackBackground);
