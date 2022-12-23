@@ -45,13 +45,15 @@ public class PerceptualHash
         int height = (int)Math.Round(binaryImage.Height * scale);
         int width = (int)Math.Round(binaryImage.Width * scale);
 
-        for (int i = 0; i < height; i++)
+        int x = 0, y = 0;
+
+        for (int i = 0; i < height - 1; i++)
         {
             for (int j = 0; j < width; j++)
             {
                 // значение в исходном изображении по масштабируемым значениям нового изображения
-                int x = Math.Min((int)Math.Round(j / scale), binaryImage.Width - 1);
-                int y = Math.Min((int)Math.Round(i / scale), binaryImage.Height - 1);
+                x = Math.Min((int)Math.Round(j / scale), binaryImage.Width - 1);
+                y = Math.Min((int)Math.Round(i / scale), binaryImage.Height - 1);
                 
                 perceptualHash |= (byte)binaryImage.GetPixel(x, y);
 
@@ -61,6 +63,27 @@ public class PerceptualHash
             // если width меньше 8, то недостающие пиксили равны 0
             perceptualHash <<= 8 - width;
         }
+
+        // необходимо развернуть цикл, так как будет переполнение на последем шаге
+        for (int j = 0; j < width - 1; j++)
+        {
+            // значение в исходном изображении по масштабируемым значениям нового изображения
+            x = Math.Min((int)Math.Round(j / scale), binaryImage.Width - 1);
+            y = Math.Min((int)Math.Round((height - 1) / scale), binaryImage.Height - 1);
+
+            perceptualHash |= (byte)binaryImage.GetPixel(x, y);
+
+            perceptualHash <<= 1;
+        }
+
+        // значение в исходном изображении по масштабируемым значениям нового изображения
+        x = Math.Min((int)Math.Round((width - 1) / scale), binaryImage.Width - 1);
+        y = Math.Min((int)Math.Round((height - 1) / scale), binaryImage.Height - 1);
+
+        perceptualHash |= (byte)binaryImage.GetPixel(x, y);
+
+        // если width меньше 8, то недостающие пиксили равны 0
+        perceptualHash <<= 8 - width;
 
         // если height меньше 8, то недостающие пиксили равны 0
         perceptualHash <<= (8 - height) * 8;

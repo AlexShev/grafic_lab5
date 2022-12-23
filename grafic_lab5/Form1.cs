@@ -18,6 +18,11 @@ public partial class Form1 : Form
     /// </summary>
     private ComponentStorage _storage;
     /// <summary>
+    /// Предобработчик изображения
+    /// </summary>
+    private ImagePreparer _imagePreparer;
+
+    /// <summary>
     /// Изображение, которое анализируется
     /// </summary>
     private Bitmap _bitmap;
@@ -26,13 +31,15 @@ public partial class Form1 : Form
     {
         InitializeComponent();
 
+        _imagePreparer = new ImagePreparer();
+        
         _storage = new ComponentStorage();
-        _analyzer = new ImageAnalyzer(_storage, false);
-        _analyzer.FillComponentStorage("..\\..\\..\\Storages\\сomponents.txt");
+        _storage.FillComponentStorage("..\\..\\..\\Storages\\сomponents.txt", _imagePreparer);
+        _analyzer = new ImageAnalyzer(_storage);
 
         openFileDialog1.Filter = $"Bitmap files (*.bmp)|*.bmp";
 
-        _analyzer.IsInteractive = true;
+        _imagePreparer.IsInteractive = true;
         _bitmap = new Bitmap(10, 10);
     }
 
@@ -60,10 +67,12 @@ public partial class Form1 : Form
     {
         // установка линейного фильтра
         MatrixParser parser = new MatrixParser("..\\..\\..\\ImageFilter\\filter.txt");
-        _analyzer.SetLinearFilter(new LinearFilter(parser.Matrix, parser.Coefficient));
+        _imagePreparer.SetLinearFilter(new LinearFilter(parser.Matrix, parser.Coefficient));
+
+        var toAnalysis = _imagePreparer.PrepareForAnalysis(_bitmap, comboBox1.SelectedIndex == 1);
 
         // Распознавание образов, определённых и не найденных 
-        var results = _analyzer.AnalyzeImage(_bitmap, comboBox1.SelectedIndex == 1);
+        var results = _analyzer.AnalyzeImage(toAnalysis);
 
         var finded = results.ResultFindedItems;
 
@@ -116,7 +125,7 @@ public partial class Form1 : Form
     /// </summary>
     private void trackBar1_Scroll(object sender, EventArgs e)
     {
-        _analyzer.BinarizationMeasure = trackBar1.Value / 10.0;
+        _imagePreparer.BinarizationMeasure = trackBar1.Value / 10.0;
     }
 }
 
